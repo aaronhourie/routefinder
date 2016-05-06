@@ -9,7 +9,8 @@ fwd_table.o: src/fwd_table.c
 	$(CC) $(CFLAGS) -c src/fwd_table.c -o obj/fwd_table.o
 
 memcheck: routefinder
-	valgrind --leak-check=full --log-file="memcheck/dump" ./routefinder
+	valgrind --leak-check=full --show-leak-kinds=all --log-file="memcheck/dump.txt" ./routefinder in/input
+	less memcheck/dump.txt
 
 clean:
 	-rm obj/fwd_table.o

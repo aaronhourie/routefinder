@@ -1,0 +1,145 @@
+Routefinder
+
+A program which determines what routes to take through routers
+using a list of forwarding tables to arrive at a destination IP.
+
+Table of contents:
+------------------
+1. Data storage
+  a: IP addresses.
+  b: Subnet entries
+  c: Forwarding tables 
+
+2. Data parsing
+  a: IP addresses 
+  b: Subnet masks
+  c: Subnet data
+  e: Forwarding table metadata
+
+3. Manipulation
+  a: Searching for host
+  b: Finding the path
+
+4. Output
+
+5. Test cases
+  a: Input validation
+  b: Program logic
+  c: Output
+
+
+1: DATA STORAGE
+---------------
+
+  a. IP addresses:
+  ----------------
+  IP addresses are stored within the program as unsigned integers. Each number
+  in the address is stored in the according byte. IP addresses within the program
+  are always prefixed with "ip_" if they are in their unsigned int form.
+  Strings which hold IP addresses are suffixed with "_ip". Passing these strings
+  to the function str_to_ip will convert it to unsigned form, which can be used
+  for bitwise operations.
+
+  b. Subnet entries: 
+  ------------------
+  Subnet entry structs hold the IP address (range) that the subnet can forward
+  to. They also hold their  according IP mask for matching purposes. Finally, 
+  they hold the address that they forward to.
+  All of these values are stored in their proper unsigned int form.
+
+  c. Forwarding tables:
+  ---------------------
+  The forwarding table is the main container of the program. It holds metadata
+  on it's size (as int), address (as unsigned int), and name (as a string).  
+  It holds a list of subnets (of length equal to size) that contain it's 
+  known hosts. 
+
+2: DATA PARSING
+---------------
+  
+  a: IP Addresses:
+  ----------------
+  IP addresses come into the str_to_ip as strings. The function then parses
+  the strings into unsigned integer arrays using a tokenizer with "." as 
+  the delimiter.  The integer array is passed to intarr_to_ip, which pulls 
+  out each integer and shifts the bits by an amount that decreases for each
+  progressive int. This way, the bits get stored in their proper spots. Then
+  the program ORs the bits together to create the return value: an unsigned
+  integer that holds the entire IP address.
+
+  b: Subnet Masks:
+  ------------------
+  The subnet mask function takes only an integer, and builds an unsigned 
+  integer to be used as a mask by taking the complement of zero (thus
+  producing the max integer) and shifting it over by the amount specified
+  by the user.
+
+  c: Subnet Data:
+  ---------------
+  Subnet data is pulled from a string by tokenizing (using the delimiter "/"
+  first to get the IP mask size) and placing the data into the according 
+  subnet.
+
+  d: Forwarding Table Data:
+  -------------------------
+  The forwarding table data is likewise parse from a string. The forwarding
+  table builder function creates a table inserts the correct data based
+  on the results of tokenizing the line. The final number in the line 
+  determines the size of the table, and therefore the amount of memory
+  required for fwd_table_t.subnets[].
+
+3: DATA MANIPULATION
+--------------------
+
+  a: Searching for host:
+  ----------------------
+  To find a host within the tables array, you search by IP. Every host
+  will have unique IP address. A linear search is performed with the 
+  host IP as the key.
+  O(n)
+
+  b: Finding the path:
+  --------------------
+  This is done recursively. First, the source IP is found using the
+  find IP. Then, it decides which IP to use by applying the subnet mask
+  and creating a list of matches. Out of the list of possible matches, it
+  picks the largest value (which is also the most specific subnet) and forwards
+  it there. It forwards by calling the function again, with the same destination
+  but an updated source table.
+
+4: TEST CASES
+-------------
+
+  a: Input validation:
+  --------------------
+    i. Entering an invalid IP address:
+      Too many IP numbers.
+      Too few IP numbers.
+      Values exceeding 255
+      Negative values.
+      Non-numeric characters.
+      Leaving off ports.
+
+    ii. Invalid file:
+      File not found.
+      File doesn't have correct format.
+
+
+  b. Program logic:
+  -----------------
+    i. Subnet matching 
+      Finds a matching subnet using the IP mask.
+      Finds a subnet that matches an IP if the subnet is not divisible y four.
+
+    ii. Subnet Specificity
+      Finds the correct IP address even if multiple matches are found
+
+    iii. Termination
+      The program will terminate if it finds an internet connection
+
+
+  c. Output:
+  ----------
+    i. Proprly formatted output. 
+      
+
